@@ -1,0 +1,18 @@
+{
+  "name": "jsrp-demo",
+  "version": "1.0.0",
+  "description": "Demo app for the jsrp module",
+  "main": "server.js",
+  "author": "Alexandros Nikiforidis <nikiforidis.alex@gmail.com> (https://blog.raqqun0101.net/)",
+  "license": "LGPLv3",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/raqqun/jsrp-demo.git"
+  },
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "express": "^4.16.2",
+    "jsrp": "^0.2.4",
+    "memdown": "^1.4.1"
+  }
+}

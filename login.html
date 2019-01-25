@@ -1,0 +1,78 @@
+<html>
+    <head>
+        <script src="https://github.com/alax/jsrp/releases/download/0.2.4/jsrp-browser.js"></script>
+    </head>
+    <body>
+        <h1>JSRP Secure Remote Password Authentication Demo</h1>
+        <p>
+        You need to <a href="register.html">register using SRP</a> to be able to login.
+        </p>
+        <form action="/authenticate" method="post">
+            username <input type="text" name="username" id="username"></input><br/>
+            password <input type="password" id="do_no_post"></input><br/>
+            <input type="hidden" name="credentials" id="credentials"></input>
+            <button type="button" onclick="autenticate(this.parentElement)">Login</button>
+        </form>
+<script>
+
+function autenticate(form) {
+    const username = document.getElementById('username').value;
+
+    const password = document.getElementById('do_no_post').value;
+
+    document.getElementById('do_no_post').value = null;
+
+    const xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            const response = JSON.parse(this.responseText);
+
+            const salt = response.salt;
+
+            const B = response.B;
+
+            const client = new jsrp.client();
+
+            client.init({ username: username, password: password }, function () {
+
+                client.setSalt(salt);
+                client.setServerPublicKey(B);
+
+                const A = client.getPublicKey();
+                const M1 = client.getProof();
+
+                document.getElementById('credentials').value = JSON.stringify({
+                    A: A,
+                    M1: M1,
+                    username: username
+                });
+
+                const xhttp = new XMLHttpRequest();
+
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                        const response = JSON.parse(this.responseText);
+
+                        const M2 = response.M2;
+
+                        if (client.checkServerProof(M2)) {
+                            console.log('server proof checks');
+                            console.log('shared key: ', client.getSharedKey());
+                            window.location = '/home?username='+username;
+                        }
+                    }
+                }
+
+                xhttp.open("POST", "/authenticate", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                xhttp.send("username="+username+"&credentials="+JSON.stringify({ A: A, M1: M1, username: username }));
+            });
+        }
+    };
+    xhttp.open("POST", "/challenge", true);
+    xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+    xhttp.send("username="+username);
+}
+</script>
+    </body>
+</html>

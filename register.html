@@ -1,0 +1,39 @@
+<html>
+    <head>
+        <script src="https://github.com/alax/jsrp/releases/download/0.2.4/jsrp-browser.js"></script>
+    </head>
+    <body>
+        <h1>JSRP Secure Remote Password Register Demo</h1>
+        <form action="/save" method="post">
+            username <input type="text" name="username" id="username"></input><br/>
+            password <input type="password" id="do_no_post"></input><br/>
+            <input type="hidden" name="salt" id="salt"></input>
+            <input type="hidden" name="verifier" id="verifier"></input>
+            <button type="button" onclick="createVerifier(this.parentElement)">Register</button>
+        </form>
+<script>
+
+
+function createVerifier(form) {
+    var password = document.getElementById('do_no_post').value;
+
+    document.getElementById('do_no_post').value = null;
+
+    var username = document.getElementById('username').value;
+
+    var client = new jsrp.client();
+
+    client.init({ username: username, password: password }, function () {
+        client.createVerifier(function(err, result) {
+
+            document.getElementById('verifier').value = result.verifier;
+
+            document.getElementById('salt').value = result.salt;
+
+            form.submit();
+        });
+    });
+}
+</script>
+    </body>
+</html>
